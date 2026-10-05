@@ -1,6 +1,6 @@
 # context-pane
 
-A Claude Code mod that shows what the conversation's context holds in a side pane.
+会話のコンテキストに入っているものをサイドペインに表示する、Claude Code の mod です。
 
 ```
 Files 2
@@ -17,22 +17,22 @@ Memory 1
 Project Claude/CLAUDE.md 1k
 ```
 
-Files are the ones read (`R`) or edited (`E`) through the file tools, newest first; a file read through Bash is not seen. A subagent's calls are left out, as they fill its own context. A compaction empties all but the memory files, as the summary replaces what they put in the window.
+Files には、ファイル操作ツールで読んだ(`R`)ファイルと編集した(`E`)ファイルを、新しい順に表示します。Bash 経由で読んだファイルは対象外です。サブエージェントの呼び出しは、そのサブエージェント自身のコンテキストに入るため表示しません。コンパクションが起きるとメモリファイル以外は空になります。要約がそれらの内容に置き換わるためです。
 
-The pane opens at the start of a session from 144 terminal columns, and docks beside the transcript in fullscreen. `/context-pane` opens it at any width.
+ペインは、ターミナルの幅が 144 桁以上あればセッション開始時に開き、フルスクリーンではトランスクリプトの横に並びます。`/context-pane` を使えば、幅に関係なく開けます。
 
-## Install
+## 導入
 
-Part of [claude-code-mods](../..):
+[claude-code-mods](../..) の一部です。
 
 ```
 /plugin marketplace add akagaya/claude-code-mods
 /plugin install context-pane@claude-code-mods
 ```
 
-It loads from the next Claude Code session on.
+次に起動した Claude Code のセッションから読み込まれます。
 
-## Develop
+## 開発
 
 ```sh
 claude plugin validate .

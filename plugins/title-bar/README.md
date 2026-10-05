@@ -1,27 +1,27 @@
 # title-bar
 
-A Claude Code mod that shows the session name, working folder and git branch at the left of the prompt footer, and sets the same text as the terminal window title.
+セッション名、作業フォルダ、git ブランチをプロンプト下のフッター左側に表示し、同じ文字列をターミナルのウィンドウタイトルにも設定する、Claude Code の mod です。
 
 ```
 session name │ ConsoleProfiles ⎇ main │ ? for shortcuts
 ```
 
-The session name is the one given with `/rename`, else the generated one, else the start of the session id. A detached HEAD shows as `@<commit>`.
+セッション名は、`/rename` で付けた名前を優先します。無ければ自動生成された名前を、それも無ければセッション ID の先頭を使います。detached HEAD は `@<commit>` と表示します。
 
-The window title is set by a child process (`scripts/set-title.ps1` on Windows, an OSC sequence to `/dev/tty` elsewhere), as the engine has no call for it.
+ウィンドウタイトルは子プロセスで設定します。Windows では `scripts/set-title.ps1` を使い、それ以外では `/dev/tty` に OSC シーケンスを書き込みます。エンジンにタイトルを設定する手段が無いためです。
 
-## Install
+## 導入
 
-Part of [claude-code-mods](../..):
+[claude-code-mods](../..) の一部です。
 
 ```
 /plugin marketplace add akagaya/claude-code-mods
 /plugin install title-bar@claude-code-mods
 ```
 
-It loads from the next Claude Code session on.
+次に起動した Claude Code のセッションから読み込まれます。
 
-## Develop
+## 開発
 
 ```sh
 claude plugin validate .
