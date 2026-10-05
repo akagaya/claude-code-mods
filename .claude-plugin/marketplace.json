@@ -1,0 +1,21 @@
+{
+  "name": "claude-code-mods",
+  "owner": { "name": "akagaya" },
+  "plugins": [
+    {
+      "name": "token-limit",
+      "source": "./plugins/token-limit",
+      "description": "Shows context window fill and rate-limit usage in colour at the right of the prompt footer"
+    },
+    {
+      "name": "title-bar",
+      "source": "./plugins/title-bar",
+      "description": "Shows session name, working folder and git branch in the prompt footer and in the terminal window title"
+    },
+    {
+      "name": "context-pane",
+      "source": "./plugins/context-pane",
+      "description": "Shows what the conversation's context holds in a side pane: files, skills, MCP servers and memory files"
+    }
+  ]
+}

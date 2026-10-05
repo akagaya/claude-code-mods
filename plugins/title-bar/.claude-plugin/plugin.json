@@ -1,0 +1,6 @@
+{
+  "name": "title-bar",
+  "version": "0.1.0",
+  "description": "Shows session name, working folder and git branch in the prompt footer and in the terminal window title",
+  "types": "./types/index.d.ts"
+}

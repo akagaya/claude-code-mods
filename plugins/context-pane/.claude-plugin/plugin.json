@@ -1,0 +1,6 @@
+{
+  "name": "context-pane",
+  "version": "0.1.0",
+  "description": "Shows what the conversation's context holds in a side pane: files, skills, MCP servers and memory files",
+  "types": "./types/index.d.ts"
+}

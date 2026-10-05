@@ -1,0 +1,6 @@
+{
+  "name": "token-limit",
+  "version": "0.3.0",
+  "description": "Shows context window fill and rate-limit usage in colour at the right of the prompt footer",
+  "types": "./types/index.d.ts"
+}
