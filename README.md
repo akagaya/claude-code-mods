@@ -1,16 +1,16 @@
 # claude-code-mods
 
-Claude Code mods, served as a plugin marketplace.
+Claude Code の mod を、プラグインのマーケットプレイスとして配布しています。
 
-| Mod | What it shows |
+| mod | 表示する内容 |
 | --- | --- |
-| [token-limit](plugins/token-limit) | Model, effort, context window fill and rate-limit usage at the right of the prompt footer |
-| [title-bar](plugins/title-bar) | Session name, working folder and git branch in the prompt footer and the terminal window title |
-| [context-pane](plugins/context-pane) | What the conversation's context holds, in a side pane |
+| [token-limit](plugins/token-limit) | モデル、effort、コンテキストウィンドウの使用量、レート制限の使用率を、プロンプト下のフッター右側に表示 |
+| [title-bar](plugins/title-bar) | セッション名、作業フォルダ、git ブランチを、フッターとターミナルのウィンドウタイトルに表示 |
+| [context-pane](plugins/context-pane) | 会話のコンテキストに入っているものを、サイドペインに表示 |
 
-## Install
+## 導入
 
-In Claude Code:
+Claude Code で次を実行します。
 
 ```
 /plugin marketplace add akagaya/claude-code-mods
@@ -19,15 +19,15 @@ In Claude Code:
 /plugin install context-pane@claude-code-mods
 ```
 
-`/plugin marketplace update claude-code-mods` pulls the latest versions.
+最新版への更新は `/plugin marketplace update claude-code-mods` で行います。
 
-Without the marketplace, copying a folder under `plugins/` to `~/.claude/skills/` works too.
+マーケットプレイスを使わずに、`plugins/` 以下のフォルダを `~/.claude/skills/` にコピーしても動きます。
 
-Each mod loads from the next Claude Code session on.
+どの mod も、次に起動した Claude Code のセッションから読み込まれます。
 
-## Develop
+## 開発
 
-From a mod's folder:
+各 mod のフォルダで次を実行します。
 
 ```sh
 claude plugin validate .
