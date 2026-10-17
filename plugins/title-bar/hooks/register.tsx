@@ -9,6 +9,9 @@ const TITLE_ENV = 'CLAUDE_TITLE_BAR'
 const SEPARATOR = ' │ '
 const SEPARATOR_GAP = ' '
 const SESSION_CELLS = 32
+// The engine's own pill, as its line reads once flattened to `hint`.
+const PR_PILL = /\b(PR #|MR !)(\d+)\b/
+const REMOTE = /^(?:\w+:\/\/)?(?:[^@/]+@)?([^:/]+)(?::\d+\/|[:/])(.+?)(?:\.git)?\/?$/
 
 const bar = atom({ plugin: 'title-bar', key: 'bar' } as const, null)
 
@@ -18,11 +21,38 @@ let transcriptPath: string | undefined
 let hookTitle: string | undefined
 let session: string | undefined
 let shown: string | undefined
+let repo: string | undefined
 
 export const textOf = ({ session, folder, branch }: Bar): string =>
   branch === undefined
     ? `${session} - ${folder}`
     : `${session} - ${folder} ${BRANCH_MARK} ${branch}`
+
+// The repository's web address, from either spelling of its remote (scp-like or URL).
+export const webOf = (remote: string): string | undefined => {
+  const found = REMOTE.exec(remote)
+
+  return found === null ? undefined : `https://${found[1]}/${found[2]}`
+}
+
+// Drawing our own tree flattens the engine's pill to text: this finds it again to link it.
+export const pillIn = (
+  hint: string,
+  repo: string | undefined,
+): { before: string; label: string; href: string; after: string } | undefined => {
+  const found = PR_PILL.exec(hint)
+
+  if (found === null || repo === undefined) return undefined
+
+  const path = found[1] === 'MR !' ? '-/merge_requests' : 'pull'
+
+  return {
+    before: hint.slice(0, found.index),
+    label: found[0],
+    href: `${repo}/${path}/${found[2]}`,
+    after: hint.slice(found.index + found[0].length),
+  }
+}
 
 const clip = (text: string): string =>
   text.length > SESSION_CELLS ? `${text.slice(0, SESSION_CELLS - 1)}…` : text
@@ -110,7 +140,7 @@ const refresh = async ($: Engine, hasNewTitle: boolean): Promise<void> => {
 
   if (hasNewTitle || session === undefined) session = await sessionOf($)
 
-  const next: Bar = { session, folder, branch }
+  const next: Bar = { session, folder, branch, repo }
   const text = textOf(next)
 
   if (text === shown) return
@@ -132,6 +162,7 @@ export const register: Register = on => {
 
     // The engine's own title (the topic, a spinner while working) would overwrite this one.
     await $.env.set('CLAUDE_CODE_DISABLE_TERMINAL_TITLE', '1').catch(() => undefined)
+    repo = webOf((await git($, 'remote', 'get-url', 'origin')) ?? '')
     await refresh($, true)
     // A checkout made outside the session (another terminal, an IDE) raises no event here.
     $.clock.every(POLL_MS, () => void refresh($, false))
@@ -168,8 +199,9 @@ export const register: Register = on => {
       return next(e)
     }
 
-    const { Box, Text } = $.ui.resolve(e)
+    const { Box, Text, Link } = $.ui.resolve(e)
     const rule = <Text dimColor>{SEPARATOR}</Text>
+    const pill = pillIn(e.props.hint, title.repo)
 
     return (
       <Box>
@@ -184,7 +216,15 @@ export const register: Register = on => {
             </Text>
           )}
           {e.props.hint === '' ? null : rule}
-          <Text dimColor>{e.props.hint}</Text>
+          {pill === undefined ? (
+            <Text dimColor>{e.props.hint}</Text>
+          ) : (
+            <Text>
+              <Text dimColor>{pill.before}</Text>
+              <Link href={pill.href}>{pill.label}</Link>
+              <Text dimColor>{pill.after}</Text>
+            </Text>
+          )}
         </Text>
       </Box>
     )

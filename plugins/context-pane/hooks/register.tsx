@@ -172,12 +172,15 @@ export const register: Register = on => {
         {heading('Files', files.length)}
         {files.length === 0 && none}
         {files.map(file => (
-          <Text key={file.path} wrap="truncate-start">
-            <Text color={file.isEdited ? 'warning' : undefined} dimColor={!file.isEdited}>
-              {file.isEdited ? 'E ' : 'R '}
-            </Text>
-            {shownPath(file.path, cwd)}
-          </Text>
+          // R/E は別要素に置き、長いパスを切り詰めても残るようにする
+          <Box key={file.path} flexDirection="row">
+            <Box flexShrink={0}>
+              <Text color={file.isEdited ? 'warning' : undefined} dimColor={!file.isEdited}>
+                {file.isEdited ? 'E ' : 'R '}
+              </Text>
+            </Box>
+            <Text wrap="truncate-start">{shownPath(file.path, cwd)}</Text>
+          </Box>
         ))}
 
         <Text> </Text>

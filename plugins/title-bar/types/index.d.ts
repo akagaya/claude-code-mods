@@ -2,6 +2,7 @@ export type Bar = {
   session: string
   folder: string
   branch?: string
+  repo?: string
 }
 
 declare module 'claude-code' {

@@ -1,6 +1,8 @@
 import { expect, mock, test } from 'claude-code/testing'
 import type { On } from 'claude-code'
 
+import { pillIn, webOf } from '../hooks/register'
+
 const START = { cwd: 'D:\\Git\\ConsoleProfiles', surface: 'terminal', isInteractive: true } as const
 
 const FOOTER = {
@@ -15,10 +17,10 @@ const TRANSCRIPT = [
   '{"type":"user","message":{"content":"hi"}}',
 ].join('\n')
 
-type World = { branch: string; transcript: string; titles: string[] }
+type World = { branch: string; remote: string; transcript: string; titles: string[] }
 
 const world = (on: On, transcript = TRANSCRIPT): World => {
-  const state: World = { branch: 'main', transcript, titles: [] }
+  const state: World = { branch: 'main', remote: '', transcript, titles: [] }
 
   mock.env(on, { OS: 'Windows_NT', USERPROFILE: 'C:\\Users\\me' })
   on('env.set', () => ({ value: undefined }))
@@ -31,7 +33,7 @@ const world = (on: On, transcript = TRANSCRIPT): World => {
     return {
       value: {
         exitCode: 0,
-        stdout: e.argv[0] === 'git' ? `${state.branch}\n` : '',
+        stdout: e.argv[0] !== 'git' ? '' : e.argv[1] === 'remote' ? `${state.remote}\n` : `${state.branch}\n`,
         stderr: '',
         isStdoutTruncated: false,
         isStderrTruncated: false,
@@ -79,4 +81,43 @@ test('a branch switched outside the session is picked up by the poll', async ($,
     'generated name - ConsoleProfiles ⎇ main',
     'generated name - ConsoleProfiles ⎇ feature/x',
   ])
+})
+
+test('a remote of either spelling gives the web address', () => {
+  expect(webOf('git@github.com:akagaya/ConsoleProfiles.git')).toBe('https://github.com/akagaya/ConsoleProfiles')
+  expect(webOf('https://github.com/akagaya/ConsoleProfiles')).toBe('https://github.com/akagaya/ConsoleProfiles')
+  expect(webOf('ssh://git@github.com:22/akagaya/ConsoleProfiles.git')).toBe(
+    'https://github.com/akagaya/ConsoleProfiles',
+  )
+  expect(webOf('')).toBe(undefined)
+})
+
+test('the pull request in the hint is cut out with its address', () => {
+  expect(pillIn('? for shortcuts · PR #12', 'https://github.com/a/b')).toEqual({
+    before: '? for shortcuts · ',
+    label: 'PR #12',
+    href: 'https://github.com/a/b/pull/12',
+    after: '',
+  })
+  expect(pillIn('MR !7 · esc to interrupt', 'https://gitlab.com/a/b')?.href).toBe(
+    'https://gitlab.com/a/b/-/merge_requests/7',
+  )
+  expect(pillIn('? for shortcuts', 'https://github.com/a/b')).toBe(undefined)
+  expect(pillIn('PR #12', undefined)).toBe(undefined)
+})
+
+test('the pull request in the footer is a link', async ($, on) => {
+  mock.clock(on)
+  const state = world(on)
+
+  state.remote = 'git@github.com:akagaya/ConsoleProfiles.git'
+  await $.session.start(START)
+
+  const ui = await $.ui.mount({ ...FOOTER, props: { ...FOOTER.props, hint: '? for shortcuts PR #12' } })
+
+  const link = await ui.find({ type: 'Link' })
+
+  expect(link?.props.href).toBe('https://github.com/akagaya/ConsoleProfiles/pull/12')
+  expect(link?.text).toContain('PR #12')
+  await ui.unmount()
 })
